@@ -22,7 +22,7 @@
       virtualenv: '{{ app_dir }}/env'
       virtualenv_python: python3
   - name: template systemd service config
-    copy:
+    template:
       src: message-board.service
       dest: /etc/systemd/system/message-board.service
     become: yes
