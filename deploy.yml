@@ -11,8 +11,6 @@
 - hosts: all
   become: yes
   tasks:
-  - name: update cache
-    apt: name=python-software-properties state=present update_cache=yes cache_valid_time=43200
   - name: install packages
     apt: name={{item}} state=installed
     with_items:
