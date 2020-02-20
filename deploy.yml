@@ -27,7 +27,7 @@
       dest: /etc/systemd/system/message-board.service
     become: yes
   - name: start systemd app service
-    systemd: name={{ message-board }}.service state=restarted enabled=yes
+    systemd: name=message-board.service state=restarted enabled=yes
     become: yes
 
 
