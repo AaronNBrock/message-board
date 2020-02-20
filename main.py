@@ -193,7 +193,14 @@ def application(env, start_response):
 
 if __name__ == "__main__":
     from wsgiref.simple_server import make_server
+    import argparse
+    parser = argparse.ArgumentParser(description='Message-board webserver.')
 
-    httpd = make_server('0.0.0.0', 8080, application)
-    print("Serving on http://0.0.0.0:8080/")
+    parser.add_argument('--port', default=8080, type=int)
+    args = parser.parse_args()
+    port = args.port
+
+
+    httpd = make_server('0.0.0.0', port, application)
+    print("Serving on http://0.0.0.0:{port}/".format(port=port))
     httpd.serve_forever()
