@@ -2,7 +2,7 @@
 Description=Python Message-Board app
 
 [Service]
-User={{ ansible_ssh_user }}
+User={{ systemd_user }}
 WorkingDirectory={{ app_dir }}
 Environment="PATH={{ app_dir }}/env/bin"
 ExecStart={{ app_dir }}/env/bin/python {{ app_dir }}/main.py --port {{ app_port }}

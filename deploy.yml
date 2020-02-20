@@ -1,13 +1,14 @@
 ---
 - hosts: all
   vars:
+    systemd_user: '{{ ansible_ssh_user }}'
     app_dir: /home/{{ ansible_ssh_user }}/message-board
     app_port: 8080
 
   tasks:
   - name: install packages
     apt: 
-      name: '{{item}}'
+      name: '{{ item }}'
       state: present
     with_items:
       - python-pip   # Optional
