@@ -1,0 +1,13 @@
+[Unit]
+Description=Python Message-Board app
+
+[Service]
+User={{ ansible_ssh_user }}
+WorkingDirectory={{ app_dir }}
+Environment="PATH={{ app_dir }}/env/bin"
+ExecStart={{ venv_home }}/bin/python {{ venv_home }}/fooservice.py
+Environment=PYTHONUNBUFFERED=1
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

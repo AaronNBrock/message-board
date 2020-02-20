@@ -1,13 +1,4 @@
 ---
-- name: This is a hello-world example
-  hosts: all
-  tasks:
-    - name: Create a file called '/tmp/testfile.txt' with the content 'hello world'.
-      copy:
-        content: hello worldn
-        dest: /tmp/testfile.txt
-
-# Install system apt packages
 - hosts: all
   vars:
     app_dir: /home/{{ ansible_ssh_user }}/message-board
@@ -15,9 +6,7 @@
   - name: install packages
     apt: name={{item}} state=present
     with_items:
-      - tree         # Optional
       - python-pip   # Optional
-      - python-dev   # Optional
       - python3-pip
       - python3-dev
       - python-virtualenv
@@ -32,18 +21,12 @@
       requirements: '{{ app_dir }}/requirements.txt'
       virtualenv: '{{ app_dir }}/env'
       virtualenv_python: python3
-
-# # Configure app systemd service and nginx
-# - hosts: all
-#   become: yes
-#   become_method: sudo
-#   tasks:
-#   - name: template systemd service config
-#     copy:
-#       src: .service
-#       dest: /etc/systemd/system/{{ app_name }}.service
-#   - name: start systemd app service
-#     systemd: name={{ app_name }}.service state=restarted enabled=yes
+  - name: template systemd service config
+    copy:
+      src: message-board.service
+      dest: /etc/systemd/system/message-board.service
+  - name: start systemd app service
+    systemd: name={{ message-board }}.service state=restarted enabled=yes
 
 
 # # Run a quick test to verify the site is working
