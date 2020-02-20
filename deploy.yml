@@ -20,7 +20,7 @@
       - python-dev   # Optional
       - python3-pip
       - python3-dev
-      - nginx
+      - python-virtualenv
     become: yes
   - name: clone repo
     git:
