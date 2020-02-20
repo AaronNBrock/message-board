@@ -31,7 +31,7 @@
     pip:
       requirements: '{{ app_dir }}/requirements.txt'
       virtualenv: '{{ app_dir }}/env'
-      virtualenv_python: python3.5
+      virtualenv_python: python3
 
 # # Configure app systemd service and nginx
 # - hosts: all
