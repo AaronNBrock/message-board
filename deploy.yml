@@ -9,10 +9,11 @@
 
 # Install system apt packages
 - hosts: all
-  become: yes
+  vars:
+    app_dir: /home/{{ ansible_ssh_user }}/message-board
   tasks:
   - name: install packages
-    apt: name={{item}} state=installed
+    apt: name={{item}} state=present
     with_items:
       - tree         # Optional
       - python-pip   # Optional
@@ -20,19 +21,16 @@
       - python3-pip
       - python3-dev
       - nginx
-
-# Install the app, note: don't do these tasks with become sudo
-- hosts: webservers
-  tasks:
+    become: yes
   - name: clone repo
     git:
       repo: 'https://github.com/AaronNBrock/message-board.git'
-      dest: /home/{{ ansible_ssh_user }}/message-board
+      dest: '{{ app_dir }}'
       update: yes  # Does a git pull if the repo already exists
   - name: install modules in a virtualenv
     pip:
-      requirements: /home/{{ ansible_ssh_user }}/message-board/requirements.txt
-      virtualenv: /home/{{ ansible_ssh_user }}/message-board/env
+      requirements: '{{ app_dir }}/requirements.txt'
+      virtualenv: '{{ app_dir }}/env'
       virtualenv_python: python3.5
 
 # # Configure app systemd service and nginx
