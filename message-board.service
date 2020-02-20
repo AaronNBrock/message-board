@@ -5,7 +5,7 @@ Description=Python Message-Board app
 User={{ ansible_ssh_user }}
 WorkingDirectory={{ app_dir }}
 Environment="PATH={{ app_dir }}/env/bin"
-ExecStart={{ app_dir }}/bin/python {{ app_dir }}/fooservice.py
+ExecStart={{ app_dir }}/bin/python {{ app_dir }}/main.py
 Environment=PYTHONUNBUFFERED=1
 Restart=on-failure
 
