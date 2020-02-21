@@ -15,7 +15,6 @@
 """
 
 
-
 from pprint import pprint
 
 import json
@@ -90,7 +89,7 @@ html = """<!DOCTYPE html>
 </html>
 """
 
-favicon = b'AAABAAEAEBAQAAEABAAoAQAAFgAAACgAAAAQAAAAIAAAAAEABAAAAAAAgAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD//wAA/4cAAP+7AAD/uwAA/7sAAP+HAAD/uwAAvrsAAL67AAC+hwAAvv8AALb/AACi/wAAiP8AAJz/AAD//wAA'
+favicon = b"AAABAAEAEBAQAAEABAAoAQAAFgAAACgAAAAQAAAAIAAAAAEABAAAAAAAgAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD//wAA/4cAAP+7AAD/uwAA/7sAAP+HAAD/uwAAvrsAAL67AAC+hwAAvv8AALb/AACi/wAAiP8AAJz/AAD//wAA"
 
 appjs = """
 let interval_id = window.setInterval(function(){
@@ -118,70 +117,103 @@ default = [
     "divide-by-zero error",
     "not enough memory, go get system upgrade",
     "need to wrap system in aluminum foil to fix problem",
-    "Typo in the code"
+    "Typo in the code",
 ]
 
 default = ["BOFH excuse #{}: {}".format(i, x) for i, x in enumerate(default)]
 
 messages = deque(default, maxlen=max_nr_messages)
 
+
 def application(env, start_response):
 
     if env["REQUEST_METHOD"] == "POST":
 
         try:
-            l = int(env.get('CONTENT_LENGTH', 0))
+            l = int(env.get("CONTENT_LENGTH", 0))
         except KeyError:
-            start_response('411 Length Required', [('Content-Type', 'application/json')])
-            return [json.dumps({"error":{"code":411, "message": "Content-Length header missing"}}).encode()]
+            start_response(
+                "411 Length Required", [("Content-Type", "application/json")]
+            )
+            return [
+                json.dumps(
+                    {"error": {"code": 411, "message": "Content-Length header missing"}}
+                ).encode()
+            ]
         if l > 150:
-            start_response('413 Payload Too Large', [('Content-Type', 'application/json')])
-            return [json.dumps({"error":{"code":413, "message": "Payload Too Large"}}).encode()]
+            start_response(
+                "413 Payload Too Large", [("Content-Type", "application/json")]
+            )
+            return [
+                json.dumps(
+                    {"error": {"code": 413, "message": "Payload Too Large"}}
+                ).encode()
+            ]
 
-        message = env['wsgi.input'].read(l).decode()
+        message = env["wsgi.input"].read(l).decode()
         if not message:
-            start_response('400 Bad Request', [('Content-Type', 'application/json')])
-            return [json.dumps({"error":{"code":400, "message": "message not provided"}}).encode()]
+            start_response("400 Bad Request", [("Content-Type", "application/json")])
+            return [
+                json.dumps(
+                    {"error": {"code": 400, "message": "message not provided"}}
+                ).encode()
+            ]
         try:
             message = json.loads(message)["message"]
         except json.decoder.JSONDecodeError:
             pass
         except KeyError:
-            start_response('400 Bad Request', [('Content-Type', 'application/json')])
-            return [json.dumps({"error":{"code":400, "message": "message key missing from json payload data"}}).encode()]
+            start_response("400 Bad Request", [("Content-Type", "application/json")])
+            return [
+                json.dumps(
+                    {
+                        "error": {
+                            "code": 400,
+                            "message": "message key missing from json payload data",
+                        }
+                    }
+                ).encode()
+            ]
 
         if message.startswith("message="):
             message = parse_qs(message)["message"][0]
 
         messages.appendleft(html_escape(message.strip()))
-        #start_response("200 OK", [('Content-Type', 'application/json')])
+        # start_response("200 OK", [('Content-Type', 'application/json')])
 
     if env["PATH_INFO"] == "/submit":
-        start_response("303 See Other", [('Content-Type', 'application/json'),
-                                         ('Location', '/')])
+        start_response(
+            "303 See Other", [("Content-Type", "application/json"), ("Location", "/")]
+        )
         return [b"OK"]
 
     if env["PATH_INFO"] == "/clear":
         messages.clear()
         messages.extendleft(default)
-        start_response("303 See Other", [('Content-Type', 'application/json'),
-                                         ('Location', '/')])
+        start_response(
+            "303 See Other", [("Content-Type", "application/json"), ("Location", "/")]
+        )
         return [b"OK"]
 
     if env["PATH_INFO"] == "/favicon.ico":
-        start_response('200 OK', [('Content-Type', 'image/x-icon')])
+        start_response("200 OK", [("Content-Type", "image/x-icon")])
         return [base64.b64decode(favicon)]
 
     if env["PATH_INFO"] == "/app.js":
-        start_response('200 OK', [('Content-Type', 'text/javascript')])
-        return[appjs.encode()]
+        start_response("200 OK", [("Content-Type", "text/javascript")])
+        return [appjs.encode()]
 
-    if env["PATH_INFO"] == "/json" or 'HTTP_USER_AGENT' in env and env['HTTP_USER_AGENT'].startswith(('python-requests', 'HTTPie', 'curl', 'Wget')):
-        start_response("200 OK", [('Content-Type', 'application/json')])
+    if (
+        env["PATH_INFO"] == "/json"
+        or "HTTP_USER_AGENT" in env
+        and env["HTTP_USER_AGENT"].startswith(
+            ("python-requests", "HTTPie", "curl", "Wget")
+        )
+    ):
+        start_response("200 OK", [("Content-Type", "application/json")])
         return [json.dumps(list(messages), indent=4).encode()]
 
-
-    start_response('200 OK', [('Content-Type', 'text/html')])
+    start_response("200 OK", [("Content-Type", "text/html")])
     content = []
     for message in list(messages):
         content.append("          <li>{}</li>\n".format(message))
@@ -194,13 +226,13 @@ def application(env, start_response):
 if __name__ == "__main__":
     from wsgiref.simple_server import make_server
     import argparse
-    parser = argparse.ArgumentParser(description='Message-board webserver.')
 
-    parser.add_argument('--port', default=8080, type=int)
+    parser = argparse.ArgumentParser(description="Message-board webserver.")
+
+    parser.add_argument("--port", default=8080, type=int)
     args = parser.parse_args()
     port = args.port
 
-
-    httpd = make_server('0.0.0.0', port, application)
+    httpd = make_server("0.0.0.0", port, application)
     print("Serving on http://0.0.0.0:{port}/".format(port=port))
     httpd.serve_forever()

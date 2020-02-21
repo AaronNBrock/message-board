@@ -7,7 +7,7 @@
 
   tasks:
   - name: install packages
-    apt: 
+    apt:
       name: '{{ item }}'
       state: present
     with_items:
@@ -32,9 +32,9 @@
       dest: /etc/systemd/system/message-board.service
     become: yes
   - name: start systemd app service
-    systemd: 
-      name: message-board.service 
-      state: restarted 
+    systemd:
+      name: message-board.service
+      state: restarted
       enabled: yes
       daemon_reload: yes
     become: yes
